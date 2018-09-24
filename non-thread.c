@@ -18,7 +18,7 @@
 #include<sys/time.h>
 
 
-#include "main.h"
+#include "src/main.h"
 
 /* Make these configurable */
 #define MOUSE_DEV "/dev/input/mice"

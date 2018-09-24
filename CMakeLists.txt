@@ -27,7 +27,7 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(x86_64)|(X86_64)")
     add_definitions(-DTESTENV)
 endif ()
 
-add_executable(STuffEmu main.c main.h input.c helpers.c helpers.h hw_defs.h hw_defs.c input.h output.c output.h)
+add_executable(STuffEmu src/main.c src/main.h src/input.c src/helpers.c src/helpers.h src/hw_defs.h src/hw_defs.c src/input.h src/output.c src/output.h)
 target_link_libraries(STuffEmu pthread)
 
 #
