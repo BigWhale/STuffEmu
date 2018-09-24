@@ -83,7 +83,7 @@ supply. Unfortunately 5V from Atari mouse/joy port isn't enough to power
 RPi2. It might be enough to power RPi Zero.
 
 
-## Final thoughs
+## Final thoughts
 
 I want an RPi in my Atari. It will emulate mouse, joystick and will provide
 an USB mount point for GoTEK floppy emulator running FlashFloppy.
@@ -91,6 +91,8 @@ an USB mount point for GoTEK floppy emulator running FlashFloppy.
 Yes, I know about CosmosEx for Atari, but I don't need that much. Altho
 HDD emulation would be nice and I'll look into that. :)
 
+Yes, I know that having a Raspberry Pi inside an Atari ST is an overkill and
+that RPi could easily emulate whole Atari ST, but I like my Atari.
 
 ## Random trivia
 
