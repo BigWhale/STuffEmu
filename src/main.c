@@ -33,8 +33,8 @@
 pthread_mutex_t mouse_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void sig_handler(int signum) {
-    if (signum == SIGUSR1) {
-        printf("Got signal USR1, bailing out!\n");
+    if (signum == SIGINT) {
+        printf("\nGot signal INT, bailing out!\n");
         exit(0);
     }
 }
@@ -44,7 +44,8 @@ int main( int argc, char *argv[]) {
     input_arg thread_arg;
     bool joy = false;
     pthread_t t_input;
-    pthread_t t_output;
+    pthread_t t_xout;
+    pthread_t t_yout;
 
     signal(SIGINT, sig_handler);
 
@@ -73,12 +74,16 @@ int main( int argc, char *argv[]) {
     start_gpio();
     printf("Starting emulation.\n");
     pthread_create(&t_input, NULL, input_thread, &thread_arg);
-    pthread_create(&t_output, NULL, output_thread, NULL);
+    pthread_create(&t_xout, NULL, x_thread, NULL);
+    pthread_create(&t_yout, NULL, y_thread, NULL);
+
+    //pthread_create(&t_output, NULL, output_thread, NULL);
     printf("Waiting for threads (forever).\n");
 
-    /* Wait for the input thread to stop */
+    /* Wait for threads to stop, once we decide on how to quit. */
     pthread_join(t_input, NULL);
-    pthread_join(t_output, NULL);
+    pthread_join(t_xout, NULL);
+    pthread_join(t_yout, NULL);
 
     return 0;
 }

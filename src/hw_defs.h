@@ -23,7 +23,7 @@
 #define LOW 0
 #endif
 
-/* Max/Min rate at which Atari can/should process data */
+/* Max/Min rate at which Atari can/should receive signals */
 #define MAX_PULSE_DELAY 37500
 #define MIN_PULSE_DELAY 375
 
@@ -47,11 +47,7 @@
 
 /* GPIO stuff down */
 
-int dir_change;
-
 void start_gpio();
 void send_command(int pin, int value);
-void move_x(int dir, int dist);
-void move_y(int dir, int dist);
 
 #endif //STUFFEMU_HW_DEFS_H

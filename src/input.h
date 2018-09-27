@@ -26,19 +26,7 @@ typedef struct s_input_arg {
     int joystick;
 } input_arg;
 
-
-typedef struct s_mouse_ev_data {
-    int buttons;
-    signed char x;
-    signed char y;
-    long time;
-} mouse_ev_data;
-
-mouse_ev_data mouse_ev;
-
 pthread_mutex_t mouse_mutex;
-
-bool read_event;
 
 void *input_thread(void *arg);
 

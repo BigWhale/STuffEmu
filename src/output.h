@@ -18,20 +18,14 @@
 #ifndef STUFFEMU_OUTPUT_H
 #define STUFFEMU_OUTPUT_H
 
-typedef struct s_output_arg {
-    int dir;
-    int distance;
-} output_arg;
+int x_dir;
+int x_dist;
 
-typedef struct s_button_arg {
-    int left;
-    int l_state;
-    int right;
-    int r_state;
-} button_arg;
+int y_dir;
+int y_dist;
 
-void *output_thread();
-void *axis_thread(void *arg);
-void *b_thread(void *arg);
+
+void *x_thread();
+void *y_thread();
 
 #endif //STUFFEMU_OUTPUT_H

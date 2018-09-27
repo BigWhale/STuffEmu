@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <linux/joystick.h>
 
@@ -25,6 +26,7 @@
 #endif
 
 #include "input.h"
+#include "output.h"
 #include "helpers.h"
 #include "hw_defs.h"
 
@@ -37,34 +39,43 @@ void *input_thread(void *arg) {
     input_arg args;
     struct js_event j_ev;
     signed char m_ev[3] = {0, 0, 0};
-    long timer = 0, old_timer = 0;
-    int b_left, b_right;
+    int l_butt, r_butt, l_old = 0, r_old = 0;
     args = *((input_arg *)arg);
     printf("Starting input thread.\n");
 
     /* Input while loop doesn't require any delay or filtering. RPi needs 16ms to read the mouse device */
     while(1) {
-        timer = millis();
         if (args.joystick) {
             if (read(args.device, &j_ev, sizeof(j_ev)) > 0) {
                 // Process joystick
             }
         } else {
             /* Read the value and store it some place safe. */
-            /* m_ev is used so that we can release the lock ASAP. */
             if (read(args.device, &m_ev, sizeof(m_ev)) > 0) {
-                b_left = m_ev[0] & 0x1;
-                b_right = m_ev[0] & 0x2;
-                printf("RX: %ld, X: %d, Y: %d, B: %d %d\n", timer - old_timer, m_ev[1], m_ev[2], b_left, b_right);
-                mouse_ev.buttons = m_ev[0];
-                mouse_ev.x = m_ev[1];
-                mouse_ev.y = m_ev[2];
-                mouse_ev.time = timer - old_timer;
+                l_butt = (m_ev[0] & 0x1) > 0;
+                r_butt = (m_ev[0] & 0x2) > 0;
                 pthread_mutex_lock(&mouse_mutex);
-                read_event = true;
-                dir_change = true;
+                if (m_ev[1] != 0) {
+                    x_dir = (m_ev[1] < 0) ? LEFT : RIGHT;
+                    x_dist = abs(m_ev[1]);
+                }
+
+                if (m_ev[2] != 0) {
+                    y_dir = (m_ev[2] < 0) ? DOWN : UP;
+                    y_dist = abs(m_ev[2]);
+                }
+
+                if (l_butt != l_old) {
+                    send_command(BL, (l_butt == true) ? LOW : HIGH);
+                    l_old = l_butt;
+                }
+
+                if (r_butt != r_old) {
+                    send_command(BR, (r_butt == true) ? LOW : HIGH);
+                    r_old = r_butt;
+                }
+
                 pthread_mutex_unlock(&mouse_mutex);
-                old_timer = timer;
             }
         }
     }

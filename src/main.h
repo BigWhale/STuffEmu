@@ -18,12 +18,4 @@
 #ifndef STUFFEMU_MAIN_H
 #define STUFFEMU_MAIN_H
 
-#include <linux/input.h>
-
-void process_mouse(unsigned char[3]);
-
-void move_mouse(int direction, int distance);
-
-void sendCommand(int pin, int value);
-
 #endif //STUFFEMU_MAIN_H

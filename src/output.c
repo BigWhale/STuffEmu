@@ -30,97 +30,50 @@
 #include "helpers.h"
 #include "hw_defs.h"
 
-mouse_ev_data m_ev;
+int x_state = 0;
+void *x_thread() {
+    int runs, delay;
+    printf("Starting the X thread. ** E X T E R M I N A T E **\n");
+    while(1) {
+        for (runs = 0; runs < x_dist; runs++) {
+            if (x_dir == LEFT) x_state--; else x_state++;
 
-void *output_thread() {
-    pthread_t t_b;
+            if ((x_dir == RIGHT) && x_state > 3) x_state = 0;
+            if ((x_dir == LEFT) && x_state < -0) x_state = 3;
 
-    button_arg b_arg;
-
-    int button = 0,
-        b_left = 0,
-        b_right = 0,
-        old_r = 0,
-        old_l = 0;
-
-    bool send_b = false;
-    printf("Starting output thread.\n");
-    /* Keep running the loop and read only when there's something new to read */
-    while (1) {
-        if (read_event) {
-            /* Grab the mouse data and do stuff with it in peace */
-            pthread_mutex_lock(&mouse_mutex);
-            m_ev = mouse_ev;
-            /* Reset axes */
-            mouse_ev.x = 0;
-            mouse_ev.y = 0;
-            pthread_mutex_unlock(&mouse_mutex);
-
-            button = m_ev.buttons;
-            b_left = button & 0x1;
-            b_right = (button & 0x2) > 0;
-
-            /* TODO: This is most likely a bit too complicated */
-            if (b_left != old_l) {
-                b_arg.l_state = b_left;
-                b_arg.left = 1;
-                old_l = b_left;
-                send_b = true;
-            } else {
-                b_arg.left = 0;
+            if (x_state == 0) send_command(XA, HIGH);
+            if (x_state == 1) send_command(XB, HIGH);
+            if (x_state == 2) send_command(XA, LOW);
+            if (x_state == 3) send_command(XB, LOW);
+            if (x_dist > 1) {
+                delay = (MAX_PULSE_DELAY / x_dist > MIN_PULSE_DELAY) ? MAX_PULSE_DELAY / x_dist : MIN_PULSE_DELAY;
+                delayMicroseconds(delay);
             }
-
-            if (b_right != old_r) {
-                b_arg.r_state = b_right;
-                b_arg.right = 1;
-                old_r = b_right;
-                send_b = true;
-            } else {
-                b_arg.right = 0;
-            }
-
-            /* Perhaps just send direction to move_ function and figure it out there? */
-            if (m_ev.x != 0) {
-                if (m_ev.x < 0) {
-                    move_x(LEFT, abs(m_ev.x));
-                } else {
-                    move_x(RIGHT, abs(m_ev.x));
-                }
-            }
-
-            if (m_ev.y != 0) {
-                if (m_ev.y < 0) {
-                    move_y(DOWN, abs(m_ev.y));
-                } else {
-                    move_y(UP, abs(m_ev.y));
-                }
-            }
-
-            if (send_b) {
-                pthread_create(&t_b, NULL, b_thread, &b_arg);
-                pthread_join(t_b, NULL);
-                send_b = false;
-            }
-
-            if ( m_ev.x || m_ev.y ) {
-                printf("TX: %ld, X: %d, Y: %d, B: %d %d\n", m_ev.time, m_ev.x, m_ev.y, b_left, b_right);
-            }
-
-            pthread_mutex_lock(&mouse_mutex);
-            read_event = false;
-            pthread_mutex_unlock(&mouse_mutex);
+            x_dist--;
         }
     }
 }
 
-void *b_thread(void *arg) {
-    button_arg args;
-    args = *((button_arg *)arg);
-    if (args.left) {
-        send_command(BL, !args.l_state);
+int y_state = 0;
+void *y_thread() {
+    int runs, delay;
+    printf("Starting the Y thread. Why, oh why?\n");
+    while(1) {
+        for (runs = 0; runs < y_dist; runs++) {
+            if (y_dir == UP) y_state--; else y_state++;
+
+            if ((y_dir == DOWN) && y_state > 3) y_state = 0;
+            if ((y_dir == UP) && y_state < -0) y_state = 3;
+
+            if (y_state == 0) send_command(YA, HIGH);
+            if (y_state == 1) send_command(YB, HIGH);
+            if (y_state == 2) send_command(YA, LOW);
+            if (y_state == 3) send_command(YB, LOW);
+            if (y_dist > 1) {
+                delay = (MAX_PULSE_DELAY / y_dist > MIN_PULSE_DELAY) ? MAX_PULSE_DELAY / y_dist : MIN_PULSE_DELAY;
+                delayMicroseconds(delay);
+            }
+            y_dist--;
+        }
     }
-    if (args.right) {
-        send_command(BR, !args.r_state);
-    }
-    return NULL;
 }
