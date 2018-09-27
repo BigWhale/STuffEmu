@@ -60,7 +60,7 @@ int main( int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
     } else {
-        if ((input_dev = open(MOUSE_DEV, O_RDONLY)) == -1) {
+        if ((input_dev = open(MOUSE_DEV, O_RDONLY | O_NONBLOCK)) == -1) {
             printf("Unable to open mouse.\n");
             exit(EXIT_FAILURE);
         }
@@ -69,12 +69,12 @@ int main( int argc, char *argv[]) {
     thread_arg.device = input_dev;
     thread_arg.joystick = joy;
 
-    /* All is well, prepare GPIO */
+    /* All is well, prepare GPIO and fire up input & output threads. */
     start_gpio();
     printf("Starting emulation.\n");
     pthread_create(&t_input, NULL, input_thread, &thread_arg);
     pthread_create(&t_output, NULL, output_thread, NULL);
-    printf("Waiting for threads.\n");
+    printf("Waiting for threads (forever).\n");
 
     /* Wait for the input thread to stop */
     pthread_join(t_input, NULL);

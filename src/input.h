@@ -18,6 +18,7 @@
 #ifndef STUFFEMU_INPUT_H
 #define STUFFEMU_INPUT_H
 
+#include <stdbool.h>
 #include <pthread.h>
 
 typedef struct s_input_arg {
@@ -25,8 +26,19 @@ typedef struct s_input_arg {
     int joystick;
 } input_arg;
 
+
+typedef struct s_mouse_ev_data {
+    int buttons;
+    signed char x;
+    signed char y;
+    long time;
+} mouse_ev_data;
+
+mouse_ev_data mouse_ev;
+
 pthread_mutex_t mouse_mutex;
-unsigned char mouse_ev[3];
+
+bool read_event;
 
 void *input_thread(void *arg);
 

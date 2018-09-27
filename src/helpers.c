@@ -19,20 +19,14 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#ifndef TESTENV
-#include <wiringPi.h>
-#endif
-
-void delay(useconds_t microseconds) {
 #ifdef TESTENV
+void delayMicroseconds(useconds_t microseconds) {
     usleep(microseconds);
-#else
-    delayMicroseconds(microseconds);
-#endif
 }
 
-long long milis(void) {
+long long millis(void) {
     struct timeval t;
     gettimeofday(&t, NULL);
     return (((long long)t.tv_sec) * 1000) + (t.tv_usec / 1000);
 }
+#endif

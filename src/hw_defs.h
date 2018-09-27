@@ -23,9 +23,9 @@
 #define LOW 0
 #endif
 
-/* Maximum rate at which Atari can process data */
-#define ATARI_MAX_RATE 3333
-#define PULSE_DELAY 500
+/* Max/Min rate at which Atari can/should process data */
+#define MAX_PULSE_DELAY 37500
+#define MIN_PULSE_DELAY 375
 
 /* Make these configurable */
 #define MOUSE_DEV "/dev/input/mice"
@@ -45,12 +45,13 @@
 #define LEFT  3
 #define RIGHT 4
 
-/* Mouse axes */
-#define A 0
-#define B 1
-
 /* GPIO stuff down */
+
+int dir_change;
+
 void start_gpio();
-void sendCommand(int pin, int value);
+void send_command(int pin, int value);
+void move_x(int dir, int dist);
+void move_y(int dir, int dist);
 
 #endif //STUFFEMU_HW_DEFS_H

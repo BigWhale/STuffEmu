@@ -2,8 +2,9 @@ STuffEmu v0.1 TODO
 ==================
  
  # Hardware
- - Figure out all the delays between pulses
- - Smarter rate limiter for input data
+ - Add more threads to remove ugly staircase effect
+ - ~~Figure out all the delays between pulses~~ (mostly done)
+ - ~~Smarter rate limiter for input data~~ (somewhat done)
  
  # Software
  - Add joystick support

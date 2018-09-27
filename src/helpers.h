@@ -1,7 +1,9 @@
 #ifndef STUFFEMU_HELPERS_H
 #define STUFFEMU_HELPERS_H
 
-void delay(int microseconds);
-long long milis(void);
+#ifdef TESTENV
+void delayMicroseconds(int microseconds);
+long long millis(void);
+#endif
 
 #endif //STUFFEMU_HELPERS_H
