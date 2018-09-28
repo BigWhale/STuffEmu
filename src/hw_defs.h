@@ -27,11 +27,7 @@
 #define MAX_PULSE_DELAY 37500
 #define MIN_PULSE_DELAY 375
 
-/* Make these configurable */
-#define MOUSE_DEV "/dev/input/mice"
-#define JOY_DEV "/dev/input/js0"
-
-/* GPIO pins */
+/* GPIO mouse pins */
 #define XB  0
 #define XA  5
 #define YB  6
@@ -39,14 +35,33 @@
 #define BL 19
 #define BR 26
 
-/* Directions */
+/* Mouse directions */
 #define UP    1
 #define DOWN  2
 #define LEFT  3
 #define RIGHT 4
 
-/* GPIO stuff down */
 
+/* Joystick events */
+#define JOY_BUTTON 1
+#define JOY_AXIS 2
+
+/* Joystick axes; these are safe assumptions */
+#define JOY_X 0
+#define JOY_Y 1
+
+/* Joystick deadzones in case of analog joystick */
+#define JOY_DEAD_MIN -1500
+#define JOY_DEAD_MAX 1500
+
+/* GPIO joystick pins */
+#define JU 25
+#define JD  8
+#define JL  7
+#define JR  1
+#define JB 16
+
+/* GPIO stuff */
 void start_gpio();
 void send_command(int pin, int value);
 

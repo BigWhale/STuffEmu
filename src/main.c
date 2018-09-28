@@ -15,6 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <argp.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -30,6 +31,50 @@
 #include "output.h"
 #include "hw_defs.h"
 
+static char *joy_dev = "/dev/input/js0";  /* default joystick device */
+const char *argp_program_version = "STuffEmu 0.2";
+const char *argp_program_bug_address = "<bigwhale@lubica.net>";
+static char doc[] = "Atari ST mouse emulator for RaspberryPi.";
+static char args_doc[] = "argle";
+static struct argp_option options[] = {
+        { "amiga", 'a', 0, 0, "Switch mouse to Amiga mode." },
+        { "mouse", 'm', "MOUSE_DEV", 0, "Specify mouse device (default: /dev/input/mice)." },
+        { "joystick", 'j', "JOY_DEV", OPTION_ARG_OPTIONAL, "Enable joystick emulation and/or specify device (default: /dev/input/js0)." },
+        { 0 }
+};
+
+struct arguments {
+    char *args[3];
+    int amiga;
+    char *mouse_dev;
+    char *joystick_dev;
+};
+
+
+static error_t parse_opt(int key, char *arg, struct argp_state *state) {
+    struct arguments *arguments = state->input;
+    switch (key) {
+        case 'a':
+            arguments->amiga = 0;
+        case 'm':
+            arguments->mouse_dev = arg;
+            break;
+        case 'j':
+            if (arg == NULL) {
+                arguments->joystick_dev = joy_dev;
+            } else {
+                arguments->joystick_dev = arg;
+            }
+            break;
+        default:
+            return ARGP_ERR_UNKNOWN;
+    }
+    return 0;
+}
+
+
+static struct argp argp = { options, parse_opt, args_doc, doc };
+
 pthread_mutex_t mouse_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void sig_handler(int signum) {
@@ -39,49 +84,59 @@ void sig_handler(int signum) {
     }
 }
 
-int main( int argc, char *argv[]) {
-    int input_dev;
-    input_arg thread_arg;
-    bool joy = false;
-    pthread_t t_input;
+int main( int argc, char **argv) {
+    struct arguments arguments;
+
+    arguments.joystick_dev = NULL;
+    arguments.mouse_dev = "/dev/input/mice";
+
+    argp_parse(&argp, argc, argv, 0, 0, &arguments);
+
+    int mouse_dev;
+    int joystick_dev = 0;
+
+    input_arg mouse_arg;
+    input_arg joystick_arg;
+    pthread_t t_mouse_input;
+    pthread_t t_joystick_input;
     pthread_t t_xout;
     pthread_t t_yout;
 
     signal(SIGINT, sig_handler);
 
-    if (argc == 2) {
-        if (strncmp(argv[1], "-j", 2) == 0) {
-            joy = true;
-        }
-    }
-
-    if (joy) {
-        if ((input_dev = open(JOY_DEV, O_RDONLY)) == -1) {
-            printf("Unable to open joystick.\n");
-            exit(EXIT_FAILURE);
-        }
-    } else {
-        if ((input_dev = open(MOUSE_DEV, O_RDONLY | O_NONBLOCK)) == -1) {
-            printf("Unable to open mouse.\n");
+    if (arguments.joystick_dev != NULL) {
+        if ((joystick_dev = open(arguments.joystick_dev, O_RDONLY | O_NONBLOCK)) == -1) {
+            printf("Unable to open joystick device.\n");
             exit(EXIT_FAILURE);
         }
     }
 
-    thread_arg.device = input_dev;
-    thread_arg.joystick = joy;
+    if ((mouse_dev = open(arguments.mouse_dev, O_RDONLY | O_NONBLOCK)) == -1) {
+        printf("Unable to open mouse device.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    mouse_arg.device = mouse_dev;
+    joystick_arg.device = joystick_dev;
 
     /* All is well, prepare GPIO and fire up input & output threads. */
     start_gpio();
     printf("Starting emulation.\n");
-    pthread_create(&t_input, NULL, input_thread, &thread_arg);
+    pthread_create(&t_mouse_input, NULL, mouse_input_thread, &mouse_arg);
+
+    if (joystick_dev) {
+        pthread_create(&t_joystick_input, NULL, joystick_input_thread, &joystick_arg);
+    }
     pthread_create(&t_xout, NULL, x_thread, NULL);
     pthread_create(&t_yout, NULL, y_thread, NULL);
 
-    //pthread_create(&t_output, NULL, output_thread, NULL);
     printf("Waiting for threads (forever).\n");
 
     /* Wait for threads to stop, once we decide on how to quit. */
-    pthread_join(t_input, NULL);
+    pthread_join(t_mouse_input, NULL);
+    if (joystick_dev) {
+        pthread_join(t_joystick_input, NULL);
+    }
     pthread_join(t_xout, NULL);
     pthread_join(t_yout, NULL);
 

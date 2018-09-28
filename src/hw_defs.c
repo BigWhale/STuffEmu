@@ -35,12 +35,26 @@ void start_gpio() {
     send_command(XB, LOW);
     send_command(YA, LOW);
     send_command(YB, HIGH);
+
     pinMode(XA, OUTPUT);
     pinMode(XB, OUTPUT);
     pinMode(YA, OUTPUT);
     pinMode(YB, OUTPUT);
     pinMode(BL, OUTPUT);
     pinMode(BR, OUTPUT);
+
+    send_command(JU, HIGH);
+    send_command(JD, HIGH);
+    send_command(JL, HIGH);
+    send_command(JR, HIGH);
+    send_command(JB, HIGH);
+
+    pinMode(JU, OUTPUT);
+    pinMode(JD, OUTPUT);
+    pinMode(JL, OUTPUT);
+    pinMode(JR, OUTPUT);
+    pinMode(JB, OUTPUT);
+
 #endif
 }
 

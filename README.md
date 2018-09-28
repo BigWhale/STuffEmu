@@ -58,10 +58,12 @@ When you're done you'll have to kill STuffEmu. There's no quit option.
 
 Take DB9 female connector, solder 330 Ohm resistors on pins 1, 2, 3, 4, 6, 9.
 Attach some wires to the resistors and connect them to GPIO pins 0, 5, 6, 13,
-19 and 26. Then also connect DB9 pin 8 to one of the GND pins on RPi.
+19 and 26. Then also connect DB9 pin 8 to one of the GND pins on RPi. Joystick
+pinout is similar, see diagram below.
 
 GPIO pins on RPI B+ are mapped on the GPIO header like this:
 
+### Mouse
 ```
 DB9 | GPIO | HDR
  1 ---- 0 --- 27 
@@ -71,6 +73,17 @@ DB9 | GPIO | HDR
  6 --- 19 --- 35
  8 -- GND --- 39
  9 --- 26 --- 37 
+```
+
+### Joystick
+```
+DB9 | GPIO | HDR
+ 1 ----25 --- 22 
+ 2 ---- 8 --- 24
+ 3 ---- 7 --- 36
+ 4 ---  1 --- 38
+ 6 --- 16 --- 36
+ 8 -- GND --- 34 
 ```
 
 I will provide a more detailed pinout with later releases.

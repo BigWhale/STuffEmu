@@ -23,11 +23,12 @@
 
 typedef struct s_input_arg {
     int device;
-    int joystick;
 } input_arg;
 
 pthread_mutex_t mouse_mutex;
+pthread_mutex_t joystick_mutex;
 
-void *input_thread(void *arg);
+void *mouse_input_thread(void *arg);
+void *joystick_input_thread(void *arg);
 
 #endif //STUFFEMU_INPUT_H
