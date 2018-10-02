@@ -86,8 +86,9 @@ DB9 | GPIO | HDR
  8 -- GND --- 34 
 ```
 
-I will provide a more detailed pinout with later releases.
-
+Wiring diagrams are in the doc directory. Stock DB9 connector in Fritzing was
+a little bit strange, so there's an alternative version and you'll probably need
+to import it if you want to open the .fzz file.
 
 ## Why?
 
