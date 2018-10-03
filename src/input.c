@@ -40,8 +40,6 @@ void *mouse_input_thread(void *arg) {
     signed char m_ev[3] = {0, 0, 0};
     int l_butt, r_butt, l_old = 0, r_old = 0;
     args = *((input_arg *)arg);
-    printf("Starting mouse input thread.\n");
-
     /* Input while loop doesn't require any delay or filtering. RPi needs 16ms to read the mouse device */
     while(1) {
         /* Read the value and store it some place safe. */
@@ -79,8 +77,6 @@ void *joystick_input_thread(void *arg) {
     struct js_event j_ev;
     int j_butt = 0, j_old = 0;
     args = *((input_arg *)arg);
-    printf("Starting joystick thread.\n");
-
     while(1) {
        if (read(args.device, &j_ev, sizeof(j_ev)) > 0) {
             switch (j_ev.type) {

@@ -37,6 +37,7 @@ const char *argp_program_bug_address = "<bigwhale@lubica.net>";
 static char doc[] = "Atari ST mouse emulator for RaspberryPi.";
 static char args_doc[] = "argle";
 static struct argp_option options[] = {
+        { "daemon", 'd', 0, 0, "Run in background."},
         { "amiga", 'a', 0, 0, "Switch mouse to Amiga mode." },
         { "mouse", 'm', "MOUSE_DEV", 0, "Specify mouse device (default: /dev/input/mice)." },
         { "joystick", 'j', "JOY_DEV", OPTION_ARG_OPTIONAL, "Enable joystick emulation and/or specify device (default: /dev/input/js0)." },
@@ -44,7 +45,8 @@ static struct argp_option options[] = {
 };
 
 struct arguments {
-    char *args[3];
+    char *args[4];
+    int daemon;
     int amiga;
     char *mouse_dev;
     char *joystick_dev;
@@ -54,8 +56,12 @@ struct arguments {
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     struct arguments *arguments = state->input;
     switch (key) {
+        case 'd':
+            arguments->daemon = true;
+            break;
         case 'a':
-            arguments->amiga = 0;
+            arguments->amiga = true;
+            break;
         case 'm':
             arguments->mouse_dev = arg;
             break;
@@ -85,12 +91,9 @@ void sig_handler(int signum) {
 }
 
 int main( int argc, char **argv) {
+    pid_t pid;
+
     struct arguments arguments;
-
-    arguments.joystick_dev = NULL;
-    arguments.mouse_dev = "/dev/input/mice";
-
-    argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     int mouse_dev;
     int joystick_dev = 0;
@@ -102,17 +105,67 @@ int main( int argc, char **argv) {
     pthread_t t_xout;
     pthread_t t_yout;
 
-    signal(SIGINT, sig_handler);
+    arguments.daemon = false;
+    arguments.amiga = false;
+    arguments.joystick_dev = NULL;
+    arguments.mouse_dev = "/dev/input/mice";
+
+    argp_parse(&argp, argc, argv, 0, 0, &arguments);
+
+
+    if (arguments.daemon) {
+        printf("Running in background.\n");
+        printf("Mouse device: %s\n", arguments.mouse_dev);
+
+        if (arguments.joystick_dev) {
+            printf("Joystick device: %s\n", arguments.joystick_dev);
+        }
+
+        pid = fork();
+
+        /* Something was foobar */
+        if (pid < 0) {
+            exit(EXIT_FAILURE);
+        }
+
+        /* Kill the parent */
+        if (pid > 0) {
+            exit(EXIT_SUCCESS);
+        }
+
+        if (setsid() < 0) {
+            exit(EXIT_FAILURE);
+        }
+
+        signal(SIGINT, sig_handler);
+
+        pid = fork();
+
+        /* Something was foobar */
+        if (pid < 0) {
+            exit(EXIT_FAILURE);
+        }
+
+        /* Kill the parent */
+        if (pid > 0) {
+            exit(EXIT_SUCCESS);
+        }
+
+    }
 
     if (arguments.joystick_dev != NULL) {
         if ((joystick_dev = open(arguments.joystick_dev, O_RDONLY | O_NONBLOCK)) == -1) {
-            printf("Unable to open joystick device.\n");
+            if (!arguments.daemon) {
+                printf("Unable to open joystick device.\n");
+            }
             exit(EXIT_FAILURE);
         }
     }
 
     if ((mouse_dev = open(arguments.mouse_dev, O_RDONLY | O_NONBLOCK)) == -1) {
-        printf("Unable to open mouse device.\n");
+        if (!arguments.daemon) {
+            printf("Unable to open mouse device: %s\n", arguments.mouse_dev);
+        }
         exit(EXIT_FAILURE);
     }
 
@@ -121,7 +174,9 @@ int main( int argc, char **argv) {
 
     /* All is well, prepare GPIO and fire up input & output threads. */
     start_gpio();
-    printf("Starting emulation.\n");
+    if (!arguments.daemon) {
+        printf("Starting emulation.\n");
+    }
     pthread_create(&t_mouse_input, NULL, mouse_input_thread, &mouse_arg);
 
     if (joystick_dev) {
@@ -130,7 +185,9 @@ int main( int argc, char **argv) {
     pthread_create(&t_xout, NULL, x_thread, NULL);
     pthread_create(&t_yout, NULL, y_thread, NULL);
 
-    printf("Waiting for threads (forever).\n");
+    if (!arguments.daemon) {
+        printf("Waiting for threads (forever).\n");
+    }
 
     /* Wait for threads to stop, once we decide on how to quit. */
     pthread_join(t_mouse_input, NULL);

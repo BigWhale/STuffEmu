@@ -8,6 +8,6 @@ STuffEmu v0.2 TODO
  
  # Software
  - ~~Add joystick support~~
- - Daemonize the emulator
+ - ~~Daemonize the emulator~~
  - ~~Command line parameters~~
  - Add Amiga support
