@@ -1,0 +1,7 @@
+[Unit]
+Description=Atari ST HW Emulator
+
+# TODO: Hardcoded path for now, deal with it in the make file
+[Service]
+Type=simple
+ExecStart=/opt/stuffemu/stuffemu

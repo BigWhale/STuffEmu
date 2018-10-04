@@ -11,3 +11,7 @@ STuffEmu v0.2 TODO
  - ~~Daemonize the emulator~~
  - ~~Command line parameters~~
  - Add Amiga support
+ 
+ # Build
+ - CMakefile for installation
+ - systemd service files

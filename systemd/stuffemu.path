@@ -1,0 +1,9 @@
+[Unit]
+Description=Atari ST HW Emulator watch script
+DefaultDependencies=no
+
+[Install]
+WantedBy=multi-user.target
+
+[Path]
+DirectoryNotEmpty=/dev/bus/usb/001/
