@@ -43,7 +43,7 @@ $ cmake ..
 $ make
 ```
 
-If everything compiled you can now run the program with ```./STuffEmu```,
+If everything compiled you can now run the program with ```./stuffemu```,
 rejoice! Don't worry if you did not connect your Atari to RPi nothing will
 blow up. If you did, it might.
 
@@ -51,7 +51,20 @@ If you move your mouse around, a mouse that is connected to the computer
 you're running STuffEmu on, a bunch of debug data will print in your
 terminal.
 
-When you're done you'll have to kill STuffEmu. There's no quit option.
+When you're done you can press CTRL-C to end stuffemu.
+
+If you want a system wide installation and you want to start STuffEmu on startup
+you can run these commands:
+
+```
+$ sudo make install
+$ sudo systemctl enable stuffemu.path
+$ sudo systemctl start stuffemu.path
+```
+
+This will install stuffemu in ```/opt/stuffemu``` and all the systemd scripts in
+```/lib/systemd/system``` then it will enable stuffemu at boot and start it.
+Your mouse should be working now and after a reboot.
 
 
 ## How to connect Atari ST with Raspberry PI?
