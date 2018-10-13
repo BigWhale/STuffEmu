@@ -32,7 +32,16 @@ for Atari ST.
 
 Unzip or untar or whatever you downloaded. If you're simply goofing out on a PC
 then you don't need anything else if you're on Raspberry Pi, then you need
-WiringPi libraries installed. You also need GCC compiler working.
+WiringPi libraries installed. You also need GCC compiler and cmake.
+
+### Prerequisites
+
+```
+$ sudo apt install wiringpi
+$ sudo apt install cmake
+
+```
+
 
 ```
 $ tar -xvzf stuffemu.tar.gz
@@ -66,6 +75,14 @@ This will install stuffemu in ```/opt/stuffemu``` and all the systemd scripts in
 ```/lib/systemd/system``` then it will enable stuffemu at boot and start it.
 Your mouse should be working now and after a reboot.
 
+## Permissions
+
+If you're running stuffemu as user pi or root (and you probably should not run
+it as root) then everything should work. If you're running it as nother user
+then you'll have to take care of the necessary permissions for devices.
+
+The easiest was for this is to edit the ```/etc/group``` file and add your username
+to the input and gpio group.
 
 ## How to connect Atari ST with Raspberry PI?
 
