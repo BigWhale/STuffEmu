@@ -19,8 +19,12 @@ cmake_minimum_required(VERSION 3.7)
 project(stuffemu C)
 
 set(CMAKE_C_STANDARD 99)
-
+#
+# This works on Raspbian
+#
 set (SYSTEMD_DIR "/lib/systemd/system/")
+
+message(STATUS "Detecting CPU: ${CMAKE_SYSTEM_PROCESSOR}")
 
 #
 # If compiling on a PC assume it's just a test and disable RPi stuff
@@ -35,7 +39,7 @@ target_link_libraries(stuffemu pthread)
 #
 # TODO.md: Check if this works on RPi v1 and v3
 #
-if (CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l" OR CMAKE_SYSTEM_PROCESSOR MATCHES "armv6l")
     target_link_libraries(stuffemu wiringPi)
 endif ()
 
