@@ -26,6 +26,22 @@
 #include "helpers.h"
 #include "hw_defs.h"
 
+void set_pins(int amiga) {
+    if (amiga) {
+        XA = 5;
+        XB = 13;
+        YA = 0;
+        YB = 6;
+    } else {
+        XB  = 0;
+        XA = 5;
+        YB = 6;
+        YA = 13;
+    }
+    BL = 19;
+    BR = 26;
+}
+
 void start_gpio() {
 #ifndef TESTENV
     wiringPiSetupGpio();

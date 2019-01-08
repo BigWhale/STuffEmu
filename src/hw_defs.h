@@ -27,14 +27,6 @@
 #define MAX_PULSE_DELAY 37500
 #define MIN_PULSE_DELAY 375
 
-/* GPIO mouse pins */
-#define XB  0
-#define XA  5
-#define YB  6
-#define YA 13
-#define BL 19
-#define BR 26
-
 /* Mouse directions */
 #define UP    1
 #define DOWN  2
@@ -61,7 +53,34 @@
 #define JR  1
 #define JB 16
 
+
+/* GPIO mouse pins for Atari ST
+#define XB  0
+#define XA  5
+#define YB  6
+#define YA 13
+#define BL 19
+#define BR 26
+*/
+
+/* GPIO mouse pins for Amiga
+#define XB  13
+#define XA  5
+#define YB  6
+#define YA  0
+#define BL 19
+#define BR 26
+*/
+
+int XA;
+int XB;
+int YA;
+int YB;
+int BL;
+int BR;
+
 /* GPIO stuff */
+void set_pins(int amiga);
 void start_gpio();
 void send_command(int pin, int value);
 

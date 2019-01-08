@@ -153,6 +153,18 @@ int main( int argc, char **argv) {
 
     }
 
+    if (arguments.amiga == true) {
+        if (!arguments.daemon) {
+            printf("Amiga mode active.\n");
+        }
+        set_pins(1);
+    } else {
+        if (!arguments.daemon) {
+            printf("Atari ST mode active.\n");
+        }
+        set_pins(0);
+    }
+
     if (arguments.joystick_dev != NULL) {
         if ((joystick_dev = open(arguments.joystick_dev, O_RDONLY | O_NONBLOCK)) == -1) {
             if (!arguments.daemon) {

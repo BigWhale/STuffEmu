@@ -42,6 +42,7 @@ $ sudo apt install cmake
 
 ```
 
+### Build the STuffEmu
 
 ```
 $ tar -xvzf stuffemu.tar.gz
@@ -138,11 +139,19 @@ HDD emulation would be nice and I'll look into that. :)
 Yes, I know that having a Raspberry Pi inside an Atari ST is an overkill and
 that RPi could easily emulate whole Atari ST, but I like my Atari.
 
-## Random trivia
 
-STuffEmu should also work with Amiga mouse port. There are just a few minor
-code modifications and it should be working. I'll add a command line switch
-but I have no way to test it. If you have a spare Amiga 1200, let me know. :)
+## Amiga support
+
+STuffEmu is now also working on Amiga. It was tested on Amiga 600. You will have to
+use `-a` switch when running the program to turn on the Amiga mode. Amiga and Atari
+modes are incompatible so you can't have one stuffemu running for both computers.
+
+### Amiga hardware issues
+
+Right mouse button won't work if there's a 330 ohm resistor on pin 9 (on DB9). I have
+no idea why exactly and I didn't really look into it. You might try with a smaller
+value resistor. I just removed it and it seems that everything is fine. Resistors on all
+the other pins aren't causing any problems.
 
 
 # Disclaimer
