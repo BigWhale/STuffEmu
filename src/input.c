@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/joystick.h>
+#include <poll.h>
 
 #ifndef TESTENV
 #include <wiringPi.h>
@@ -39,11 +40,30 @@ void *mouse_input_thread(void *arg) {
     input_arg args;
     signed char m_ev[3] = {0, 0, 0};
     int l_butt, r_butt, l_old = 0, r_old = 0;
+    struct pollfd mousefds[1];
+    int mousepoll;
+
     args = *((input_arg *)arg);
+
+    mousefds[0].fd = args.device;
+    mousefds[0].events = POLLIN;
+
     /* Input while loop doesn't require any delay or filtering. RPi needs 16ms to read the mouse device */
-    while(1) {
+    while (1) {
+        /* Setup a poll so we don't load the CPU unnecessarily */
+        mousepoll = poll(mousefds, 1, 5000);
+
+        /* Check for a hangup event */
+        if ((mousepoll > 0) && (mousefds[0].revents & POLLHUP)) {
+            /* A hangup occurred; mouse (& fd) has gone away, end thread */
+            return;
+        }
+
         /* Read the value and store it some place safe. */
-        if (read(args.device, &m_ev, sizeof(m_ev)) > 0) {
+        if ((mousepoll > 0)
+            && (mousefds[0].revents & POLLIN)
+            && (read(args.device, &m_ev, sizeof(m_ev)) > 0)
+        ) {
             l_butt = (m_ev[0] & 0x1) > 0;
             r_butt = (m_ev[0] & 0x2) > 0;
             pthread_mutex_lock(&mouse_mutex);
