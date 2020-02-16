@@ -15,6 +15,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
+
 #include <argp.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -151,7 +153,6 @@ int main(int argc, char **argv) {
         if (pid > 0) {
             exit(EXIT_SUCCESS);
         }
-
     }
 
     if (arguments.amiga == true) {
@@ -191,12 +192,17 @@ int main(int argc, char **argv) {
         printf("Starting emulation.\n");
     }
     pthread_create(&t_mouse_input, NULL, mouse_input_thread, &mouse_arg);
+    pthread_setname_np(mouse_input_thread, "STuffEmu: mouse input");
 
     if (joystick_dev) {
         pthread_create(&t_joystick_input, NULL, joystick_input_thread, &joystick_arg);
+        pthread_setname_np(joystick_input_thread, "STuffEmu: joystick input");
     }
+
     pthread_create(&t_xout, NULL, x_thread, NULL);
+    pthread_setname_np(x_thread, "STuffEmu: mouse x motion");
     pthread_create(&t_yout, NULL, y_thread, NULL);
+    pthread_setname_np(y_thread, "STuffEmu: mouse y motion");
 
     if (!arguments.daemon) {
         printf("Waiting for threads (forever).\n");
