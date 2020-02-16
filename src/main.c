@@ -34,7 +34,6 @@
 #include "hw_defs.h"
 
 static char *joy_dev = "/dev/input/js0";  /* default joystick device */
-static char *mouse_dev = "/dev/input/mice";  /* default mouse device */
 const char *argp_program_version = "STuffEmu 0.2";
 const char *argp_program_bug_address = "<bigwhale@lubica.net>";
 static char doc[] = "Atari ST mouse emulator for RaspberryPi.";
@@ -93,7 +92,7 @@ void sig_handler(int signum) {
     }
 }
 
-int main(int argc, char **argv) {
+int main( int argc, char **argv) {
     pid_t pid;
 
     struct arguments arguments;
@@ -111,7 +110,7 @@ int main(int argc, char **argv) {
     arguments.daemon = false;
     arguments.amiga = false;
     arguments.joystick_dev = NULL;
-    arguments.mouse_dev = mouse_dev;
+    arguments.mouse_dev = "/dev/input/mice";
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
