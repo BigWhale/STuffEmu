@@ -34,7 +34,6 @@
 #define POLL_INTERVAL_MSEC 5000
 
 /**
- *
  * @param arg input_arg device FD and true/false if device is a joystick
  * @return none
  */
@@ -77,6 +76,13 @@ void *mouse_input_thread(void *arg) {
             if (m_ev[2] != 0) {
                 y_dir = (m_ev[2] < 0) ? DOWN : UP;
                 y_dist = abs(m_ev[2]);
+            }
+
+            /* Wake motion threads, motion has occurred */
+            if ((m_ev[1] != 0) || (m_ev[2] != 0)) {
+                pthread_mutex_lock(&mouse_motion_mtx);
+                pthread_cond_broadcast(&mouse_motion);
+                pthread_mutex_unlock(&mouse_motion_mtx);
             }
 
             if (l_butt != l_old) {

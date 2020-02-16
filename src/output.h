@@ -18,12 +18,16 @@
 #ifndef STUFFEMU_OUTPUT_H
 #define STUFFEMU_OUTPUT_H
 
+#include <pthread.h>
+
 int x_dir;
 int x_dist;
 
 int y_dir;
 int y_dist;
 
+pthread_cond_t mouse_motion;
+pthread_mutex_t mouse_motion_mtx;
 
 void *x_thread();
 void *y_thread();

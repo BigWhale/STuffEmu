@@ -191,6 +191,10 @@ int main(int argc, char **argv) {
     if (!arguments.daemon) {
         printf("Starting emulation.\n");
     }
+
+    /* Setup a thread condition for a mouse event */
+    pthread_cond_init(&mouse_motion, NULL);
+
     pthread_create(&t_mouse_input, NULL, mouse_input_thread, &mouse_arg);
     pthread_setname_np(t_mouse_input, "STuffEmu: mouse input");
 
