@@ -31,6 +31,8 @@
 #include "helpers.h"
 #include "hw_defs.h"
 
+#define POLL_INTERVAL_MSEC 5000
+
 /**
  *
  * @param arg input_arg device FD and true/false if device is a joystick
@@ -51,7 +53,7 @@ void *mouse_input_thread(void *arg) {
     /* Input while loop doesn't require any delay or filtering. RPi needs 16ms to read the mouse device */
     while (1) {
         /* Setup a poll so we don't load the CPU unnecessarily */
-        mousepoll = poll(mousefds, 1, 5000);
+        mousepoll = poll(mousefds, 1, POLL_INTERVAL_MSEC);
 
         /* Check for a hangup event */
         if ((mousepoll > 0) && (mousefds[0].revents & POLLHUP)) {
