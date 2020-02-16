@@ -195,17 +195,17 @@ int main( int argc, char **argv) {
     pthread_cond_init(&mouse_motion, NULL);
 
     pthread_create(&t_mouse_input, NULL, mouse_input_thread, &mouse_arg);
-    pthread_setname_np(t_mouse_input, "STuffEmu: mouse input");
+    pthread_setname_np(t_mouse_input, "stfmu: mousehid");
 
     if (joystick_dev) {
         pthread_create(&t_joystick_input, NULL, joystick_input_thread, &joystick_arg);
-        pthread_setname_np(t_joystick_input, "STuffEmu: joystick input");
+        pthread_setname_np(t_joystick_input, "stfmu: joyhid");
     }
 
     pthread_create(&t_xout, NULL, x_thread, NULL);
-    pthread_setname_np(t_xout, "STuffEmu: mouse x motion");
+    pthread_setname_np(t_xout, "stfmu: mouse x");
     pthread_create(&t_yout, NULL, y_thread, NULL);
-    pthread_setname_np(t_yout, "STuffEmu: mouse y motion");
+    pthread_setname_np(t_yout, "stfmu: mouse y");
 
     if (!arguments.daemon) {
         printf("Waiting for threads (forever).\n");
