@@ -106,9 +106,29 @@ void *joystick_input_thread(void *arg) {
     input_arg args;
     struct js_event j_ev;
     int j_butt = 0, j_old = 0;
+    struct pollfd joyfds[1];
+    int joypoll;
+
     args = *((input_arg *)arg);
-    while(1) {
-       if (read(args.device, &j_ev, sizeof(j_ev)) > 0) {
+
+    joyfds[0].fd = args.device;
+    joyfds[0].events = POLLIN;
+
+    while (1) {
+        /* Setup a poll so we don't load the CPU unnecessarily */
+        joypoll = poll(joyfds, 1, POLL_INTERVAL_MSEC);
+
+        /* Check for hangup */
+        if ((joypoll > 0) && (joyfds[0].revents & POLLHUP)) {
+            /* A hangup occurred; joystuck device has gone away, likely [un]hotplugged */
+            return;
+        }
+
+        /* Process the input (if there is any) */
+        if ((joypoll > 0)
+            && (joyfds[0].revents & POLLIN)
+            && (read(args.device, &j_ev, sizeof(j_ev)) > 0)
+        ) {
             switch (j_ev.type) {
                 case JOY_BUTTON: /* One of the buttons was pressed, react to ALL the buttons */
                     j_butt = j_ev.value;
