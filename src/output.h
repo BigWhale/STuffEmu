@@ -27,7 +27,8 @@ int y_dir;
 int y_dist;
 
 pthread_cond_t mouse_motion;
-pthread_mutex_t mouse_motion_mtx;
+pthread_mutex_t mouse_motion_x_mtx;
+pthread_mutex_t mouse_motion_y_mtx;
 
 void *x_thread();
 void *y_thread();

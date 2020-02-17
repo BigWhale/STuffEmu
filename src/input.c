@@ -80,9 +80,11 @@ void *mouse_input_thread(void *arg) {
 
             /* Wake motion threads, motion has occurred */
             if ((m_ev[1] != 0) || (m_ev[2] != 0)) {
-                pthread_mutex_lock(&mouse_motion_mtx);
+                pthread_mutex_lock(&mouse_motion_x_mtx);
+                pthread_mutex_lock(&mouse_motion_y_mtx);
                 pthread_cond_broadcast(&mouse_motion);
-                pthread_mutex_unlock(&mouse_motion_mtx);
+                pthread_mutex_unlock(&mouse_motion_x_mtx);
+                pthread_mutex_unlock(&mouse_motion_y_mtx);
             }
 
             if (l_butt != l_old) {

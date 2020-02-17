@@ -92,7 +92,7 @@ void sig_handler(int signum) {
     }
 }
 
-int main( int argc, char **argv) {
+int main(int argc, char **argv) {
     pid_t pid;
 
     struct arguments arguments;
