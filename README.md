@@ -121,6 +121,60 @@ Wiring diagrams are in the doc directory. Stock DB9 connector in Fritzing was
 a little bit strange, so there's an alternative version and you'll probably need
 to import it if you want to open the .fzz file.
 
+## Troubleshooting
+
+### Rubber-band effect
+
+High-DPI mice are inexpensive and ubiquitous; even Amazon's own-brand cordless
+mouse delivers a high DPI to the host machine. Unfortunately, the decision was
+made by the Raspberry Pi kernel developers to change the default mouse polling
+frequency to 60Hz. This works fine for ~15 year old mice but modern mice will
+not behave the same way: Mouse motion will appear laggy and elastic, and the
+pointer will continue to move even after your hand has stopped. This is even a
+problem with the Pi's default desktop environment.
+
+This is _not_ a fault with STuffEmu, which abstracts reading mouse motion from
+reporting to the computer in a way that copes with these DPI issues.
+
+If you encounter this issue, you should likely increase your mouse polling
+rate. Whilst `mousepoll` is exposed via the `/sys/module` interface, it cannot
+be adjusted during normal operation and will require a reboot, so do not be
+surprised if adjusting it this way yields no results; a reboot _is_ required.
+
+Start by changing the `mousepoll` value to `0` in `/boot/cmdline.txt`.
+Add `usbhid.mousepoll=0` to the end of the first line. DO NOT CREATE A SECOND
+LINE.
+
+I own two Tecknet cordless mice whose motion remains laggy even after changing
+the `mousepoll` parameter to `0`. In these cases, I set the `mousepoll` to `2`
+and the problem was corrected.
+
+Reboot after making the change to `/boot/cmdline.txt`.
+
+Please note that increasing the polling interval uses more CPU time. This was
+not found to be a problem on the Pi Zero but I have not tested with older
+700MHz models.
+
+It is possible that there is some connection between the `bInterval` variable
+in the USB information block for mouse HID devices, and that this value is
+the recommended value for your `mousepoll` parameter. For example, from my
+Tecknet mice:
+
+```
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0007  1x 7 bytes
+        bInterval               2
+```
+
+However I am not familiar with the HID specification so cannot be certain.
+
 ## Why?
 
 Why not? My idea is to actually power Raspberry Pi from the Atari's power
