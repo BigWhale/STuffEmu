@@ -9,14 +9,12 @@ This started as a fun side project after watching [Backoffice show video](https:
 using RPi to emulate Atari mouse. It was a proof of concept and I decided
 to make a POCv2. :)
 
-
 ## How it's done?
 
-RPi serves as a USB HID interface as an easy access to ```/dev/input/mice```.
+RPi serves as a USB HID interface as an easy access to `/dev/input/mice`.
 Input is read, converted to proper signals for Atari ST and then sent out via
 GPIO to Atari ST. A seven wire cable with half a dozen resistors and a DB9
 connector is all that you need for connecting these two.
-
 
 ## What's missing?
 
@@ -27,7 +25,6 @@ for Atari ST.
 
 (And they aren't even pulses, just state changes.)
 
-
 ## How to use it?
 
 Unzip or untar or whatever you downloaded. If you're simply goofing out on a PC
@@ -36,15 +33,14 @@ WiringPi libraries installed. You also need GCC compiler and cmake.
 
 ### Prerequisites
 
-```
+```shell
 $ sudo apt install wiringpi
 $ sudo apt install cmake
-
 ```
 
 ### Build the STuffEmu
 
-```
+```shell
 $ tar -xvzf stuffemu.tar.gz
 $ cd STuffEmu
 $ mkdir build
@@ -53,7 +49,7 @@ $ cmake ..
 $ make
 ```
 
-If everything compiled you can now run the program with ```./stuffemu```,
+If everything compiled you can now run the program with `./stuffemu`,
 rejoice! Don't worry if you did not connect your Atari to RPi nothing will
 blow up. If you did, it might.
 
@@ -72,8 +68,8 @@ $ sudo systemctl enable stuffemu.path
 $ sudo systemctl start stuffemu.path
 ```
 
-This will install stuffemu in ```/opt/stuffemu``` and all the systemd scripts in
-```/lib/systemd/system``` then it will enable stuffemu at boot and start it.
+This will install stuffemu in `/opt/stuffemu` and all the systemd scripts in
+`/lib/systemd/system` then it will enable stuffemu at boot and start it.
 Your mouse should be working now and after a reboot.
 
 ## Permissions
@@ -82,7 +78,7 @@ If you're running stuffemu as user pi or root (and you probably should not run
 it as root) then everything should work. If you're running it as nother user
 then you'll have to take care of the necessary permissions for devices.
 
-The easiest was for this is to edit the ```/etc/group``` file and add your username
+The easiest was for this is to edit the `/etc/group` file and add your username
 to the input and gpio group.
 
 ## How to connect Atari ST with Raspberry PI?
@@ -95,27 +91,27 @@ pinout is similar, see diagram below.
 GPIO pins on RPI B+ are mapped on the GPIO header like this:
 
 ### Mouse
-```
-DB9 | GPIO | HDR
- 1 ---- 0 --- 27 
- 2 ---- 5 --- 29
- 3 ---- 6 --- 31
- 4 --- 13 --- 33
- 6 --- 19 --- 35
- 8 -- GND --- 39
- 9 --- 26 --- 37 
-```
+
+| DB9 | GPIO | HDR |
+|-----|------|-----|
+| 1   | 0    | 27  |
+| 2   | 5    | 29  |
+| 3   | 6    | 31  |
+| 4   | 13   | 33  |
+| 6   | 19   | 35  |
+| 8   | GND  | 39  |
+| 9   | 26   | 37  |
 
 ### Joystick
-```
-DB9 | GPIO | HDR
- 1 ----25 --- 22 
- 2 ---- 8 --- 24
- 3 ---- 7 --- 26
- 4 ---  1 --- 28
- 6 --- 16 --- 36
- 8 -- GND --- 34 
-```
+
+| DB9 | GPIO | HDR |
+|-----|------|-----|
+| 1   | 25   | 22  |
+| 2   | 8    | 24  |
+| 3   | 7    | 26  |
+| 4   | 1    | 28  |
+| 6   | 16   | 36  |
+| 8   | GND  | 34  |
 
 Wiring diagrams are in the doc directory. Stock DB9 connector in Fritzing was
 a little bit strange, so there's an alternative version and you'll probably need
@@ -126,7 +122,6 @@ to import it if you want to open the .fzz file.
 Why not? My idea is to actually power Raspberry Pi from the Atari's power
 supply. Unfortunately 5V from Atari mouse/joy port isn't enough to power
 RPi2. It might be enough to power RPi Zero.
-
 
 ## Final thoughts
 
@@ -139,7 +134,6 @@ HDD emulation would be nice and I'll look into that. :)
 Yes, I know that having a Raspberry Pi inside an Atari ST is an overkill and
 that RPi could easily emulate whole Atari ST, but I like my Atari.
 
-
 ## Amiga support
 
 STuffEmu is now also working on Amiga. It was tested on Amiga 600. You will have to
@@ -148,16 +142,21 @@ modes are incompatible so you can't have one stuffemu running for both computers
 
 ### Amiga hardware issues
 
-Right mouse button won't work if there's a 330 ohm resistor on pin 9 (on DB9). I have
-no idea why exactly and I didn't really look into it. You might try with a smaller
-value resistor. I just removed it and it seems that everything is fine. Resistors on all
-the other pins aren't causing any problems.
+The Amiga's right and middle mouse buttons intersect with the Y and X axis of analogue
+joystick inputs respectively owing to the ports being compatible with multiple types of
+input device, and are potentiometer inputs. In spite of the mouse-mode inputs being read
+digitally, if the voltage level is too low the Amiga-side CIA won't register the
+required "high" to trigger the input and it will be ignored.
 
+As a result, if there is a 330 ohm resistor on pin 9, the right mouse button will not
+work. You might try with a smaller value resistor. I just removed it and it seems that
+everything is fine. Resistors on all the other pins aren't causing any problems.
+
+The Amiga DB9 pin 7 is a 5V pin with a maximum load of 50mA which is not sufficient to
+power any form of Raspberry Pi.
 
 # Disclaimer
 
 Connecting various stuff and wires to your computer, let it be a new PC,
 small Raspberry Pi or an old Atari ST, can damage your computer. This thing
 works and it worked for me. It might not work for you. You're at your own here.
- 
- 

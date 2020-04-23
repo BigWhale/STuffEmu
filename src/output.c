@@ -56,6 +56,10 @@ int x_state = 0;
 void *x_thread() {
     int runs, delay;
     while(1) {
+        /* Make this thread wait until the mouse_thread raises motion condition */
+        pthread_mutex_lock(&mouse_motion_x_mtx);
+        pthread_cond_wait(&mouse_motion, &mouse_motion_x_mtx);
+
         for (runs = 0; runs < x_dist; runs++) {
             if (x_dir == LEFT) x_state--; else x_state++;
 
@@ -72,6 +76,8 @@ void *x_thread() {
             }
             x_dist--;
         }
+
+        pthread_mutex_unlock(&mouse_motion_x_mtx);
     }
 }
 
@@ -79,6 +85,10 @@ int y_state = 0;
 void *y_thread() {
     int runs, delay;
     while(1) {
+        /* Make this thread wait until the mouse_thread raises motion condition */
+        pthread_mutex_lock(&mouse_motion_y_mtx);
+        pthread_cond_wait(&mouse_motion, &mouse_motion_y_mtx);
+
         for (runs = 0; runs < y_dist; runs++) {
             if (y_dir == UP) y_state--; else y_state++;
 
@@ -95,5 +105,7 @@ void *y_thread() {
             }
             y_dist--;
         }
+
+        pthread_mutex_unlock(&mouse_motion_y_mtx);
     }
 }

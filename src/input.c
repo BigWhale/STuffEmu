@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/joystick.h>
+#include <poll.h>
 
 #ifndef TESTENV
 #include <wiringPi.h>
@@ -30,8 +31,9 @@
 #include "helpers.h"
 #include "hw_defs.h"
 
+#define POLL_INTERVAL_MSEC 5000
+
 /**
- *
  * @param arg input_arg device FD and true/false if device is a joystick
  * @return none
  */
@@ -39,11 +41,30 @@ void *mouse_input_thread(void *arg) {
     input_arg args;
     signed char m_ev[3] = {0, 0, 0};
     int l_butt, r_butt, l_old = 0, r_old = 0;
+    struct pollfd mousefds[1];
+    int mousepoll;
+
     args = *((input_arg *)arg);
+
+    mousefds[0].fd = args.device;
+    mousefds[0].events = POLLIN;
+
     /* Input while loop doesn't require any delay or filtering. RPi needs 16ms to read the mouse device */
-    while(1) {
+    while (1) {
+        /* Setup a poll so we don't load the CPU unnecessarily */
+        mousepoll = poll(mousefds, 1, POLL_INTERVAL_MSEC);
+
+        /* Check for a hangup event */
+        if ((mousepoll > 0) && (mousefds[0].revents & POLLHUP)) {
+            /* A hangup occurred; mouse (& fd) has gone away, end thread */
+            return;
+        }
+
         /* Read the value and store it some place safe. */
-        if (read(args.device, &m_ev, sizeof(m_ev)) > 0) {
+        if ((mousepoll > 0)
+            && (mousefds[0].revents & POLLIN)
+            && (read(args.device, &m_ev, sizeof(m_ev)) > 0)
+        ) {
             l_butt = (m_ev[0] & 0x1) > 0;
             r_butt = (m_ev[0] & 0x2) > 0;
             pthread_mutex_lock(&mouse_mutex);
@@ -55,6 +76,15 @@ void *mouse_input_thread(void *arg) {
             if (m_ev[2] != 0) {
                 y_dir = (m_ev[2] < 0) ? DOWN : UP;
                 y_dist = abs(m_ev[2]);
+            }
+
+            /* Wake motion threads, motion has occurred */
+            if ((m_ev[1] != 0) || (m_ev[2] != 0)) {
+                pthread_mutex_lock(&mouse_motion_x_mtx);
+                pthread_mutex_lock(&mouse_motion_y_mtx);
+                pthread_cond_broadcast(&mouse_motion);
+                pthread_mutex_unlock(&mouse_motion_x_mtx);
+                pthread_mutex_unlock(&mouse_motion_y_mtx);
             }
 
             if (l_butt != l_old) {
@@ -76,9 +106,29 @@ void *joystick_input_thread(void *arg) {
     input_arg args;
     struct js_event j_ev;
     int j_butt = 0, j_old = 0;
+    struct pollfd joyfds[1];
+    int joypoll;
+
     args = *((input_arg *)arg);
-    while(1) {
-       if (read(args.device, &j_ev, sizeof(j_ev)) > 0) {
+
+    joyfds[0].fd = args.device;
+    joyfds[0].events = POLLIN;
+
+    while (1) {
+        /* Setup a poll so we don't load the CPU unnecessarily */
+        joypoll = poll(joyfds, 1, POLL_INTERVAL_MSEC);
+
+        /* Check for hangup */
+        if ((joypoll > 0) && (joyfds[0].revents & POLLHUP)) {
+            /* A hangup occurred; joystuck device has gone away, likely [un]hotplugged */
+            return;
+        }
+
+        /* Process the input (if there is any) */
+        if ((joypoll > 0)
+            && (joyfds[0].revents & POLLIN)
+            && (read(args.device, &j_ev, sizeof(j_ev)) > 0)
+        ) {
             switch (j_ev.type) {
                 case JOY_BUTTON: /* One of the buttons was pressed, react to ALL the buttons */
                     j_butt = j_ev.value;

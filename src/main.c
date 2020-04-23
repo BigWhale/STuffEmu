@@ -15,6 +15,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
+
 #include <argp.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -90,7 +92,7 @@ void sig_handler(int signum) {
     }
 }
 
-int main( int argc, char **argv) {
+int main(int argc, char **argv) {
     pid_t pid;
 
     struct arguments arguments;
@@ -150,7 +152,6 @@ int main( int argc, char **argv) {
         if (pid > 0) {
             exit(EXIT_SUCCESS);
         }
-
     }
 
     if (arguments.amiga == true) {
@@ -189,13 +190,22 @@ int main( int argc, char **argv) {
     if (!arguments.daemon) {
         printf("Starting emulation.\n");
     }
+
+    /* Setup a thread condition for a mouse event */
+    pthread_cond_init(&mouse_motion, NULL);
+
     pthread_create(&t_mouse_input, NULL, mouse_input_thread, &mouse_arg);
+    pthread_setname_np(t_mouse_input, "stfmu: mousehid");
 
     if (joystick_dev) {
         pthread_create(&t_joystick_input, NULL, joystick_input_thread, &joystick_arg);
+        pthread_setname_np(t_joystick_input, "stfmu: joyhid");
     }
+
     pthread_create(&t_xout, NULL, x_thread, NULL);
+    pthread_setname_np(t_xout, "stfmu: mouse x");
     pthread_create(&t_yout, NULL, y_thread, NULL);
+    pthread_setname_np(t_yout, "stfmu: mouse y");
 
     if (!arguments.daemon) {
         printf("Waiting for threads (forever).\n");
